@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  cache:
+    image: redis:7.4-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    # Command explanation: Save DB if 1 key changes in 20 seconds. Log warnings only. Set password.
+    command: redis-server --save 20 1 --loglevel warning --requirepass 1123581321
+    volumes:
+      - redis_data:/data
+
+  db:
+    image: postgres:16.8-alpine3.20
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 1123581321
+      POSTGRES_DB: rpg_engine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  redis_data:
+  pgdata:
