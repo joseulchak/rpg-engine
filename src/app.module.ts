@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import dbConfig from './config/db.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from './events/events.module';
+import { StatsCalculatorModule } from './game/statsCalculator/stats-calculator.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { EventsModule } from './events/events.module';
       useFactory: dbConfig,
     }),
     EventsModule,
+    StatsCalculatorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
