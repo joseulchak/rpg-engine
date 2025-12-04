@@ -7,29 +7,30 @@ import { GRAVITY } from '../../config/constants';
 
 @Injectable()
 export class StatsCalculatorService {
+  private readonly HP_PER_VIT: number = 10;
+  private readonly HP_PER_CON: number = 2;
+  private readonly MP_PER_ENE: number = 10;
+  private readonly MP_PER_ARC: number = 5;
   calculate(stats: BaseAttributesDto): DerivedStatsDto {
-    const HP_PER_VIT: number = 10;
-    const HP_PER_CON: number = 2;
-    const MP_PER_ENE: number = 10;
-    const MP_PER_ARC: number = 5;
     const derivedStats: DerivedStatsDto = {
-      maxHp: calculateMaxHp(),
-      maxMp: calculateMaxMp(),
-      carryCapacity: calculateCarryCapacity(),
+      maxHp: this.calculateMaxHp(stats),
+      maxMp: this.calculateMaxMp(stats),
+      carryCapacity: this.calculateCarryCapacity(stats),
     };
 
     return derivedStats;
+  }
+  private calculateMaxHp(stats: BaseAttributesDto): number {
+    return (
+      stats.vitality * this.HP_PER_VIT + stats.constitution * this.HP_PER_CON
+    );
+  }
 
-    function calculateMaxHp(): number {
-      return stats.vitality * HP_PER_VIT + stats.constitution * HP_PER_CON;
-    }
+  private calculateMaxMp(stats: BaseAttributesDto): number {
+    return stats.energy * this.MP_PER_ENE + stats.arcane * this.MP_PER_ARC;
+  }
 
-    function calculateMaxMp(): number {
-      return stats.energy * MP_PER_ENE + stats.arcane * MP_PER_ARC;
-    }
-
-    function calculateCarryCapacity(): number {
-      return (stats.strength * stats.characterWeight) / GRAVITY;
-    }
+  private calculateCarryCapacity(stats: BaseAttributesDto): number {
+    return (stats.strength * stats.characterWeight) / GRAVITY;
   }
 }
