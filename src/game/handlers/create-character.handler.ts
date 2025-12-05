@@ -32,6 +32,7 @@ export class CreateCharacterHandler implements ICommandHandler<CreateCharacterCo
         attributes,
         derivatedStats,
       };
+      event.version = 1;
       await queryRunner.manager.save(event);
       await queryRunner.commitTransaction();
     } catch (error) {
