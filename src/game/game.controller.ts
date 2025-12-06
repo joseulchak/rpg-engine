@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateCharacterCommand } from './commands/create-character.command';
 import { LevelUpCommand } from './commands/level-up.command';
 import { InjectQueue } from '@nestjs/bullmq';
-import { GAME_QUEUE } from 'src/config/constants';
+import { GAME_QUEUE, LEVEL_UP_COMMAND } from 'src/config/constants';
 import { Queue } from 'bullmq';
 
 @Controller('game')
@@ -38,7 +38,7 @@ export class GameController {
   @HttpCode(HttpStatus.ACCEPTED)
   async levelUp(@Param('characterId') characterId: string) {
     const command = new LevelUpCommand(characterId);
-    const job = await this.gameQueue.add('level-up', command);
+    const job = await this.gameQueue.add(LEVEL_UP_COMMAND, command);
 
     return {
       status: 'queued',
