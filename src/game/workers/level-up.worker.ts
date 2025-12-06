@@ -11,6 +11,7 @@ export class LevelUpWorker extends WorkerHost {
   async process(job: Job<LevelUpCommand>): Promise<void> {
     const { characterId } = job.data;
     await new Promise((resolve) => setTimeout(resolve, 5000));
+    // TODO: Level up logic (gameEvent, character record update)
     this.logger.log(`[Job ${job.id}] COMPLETE: ${characterId} is now Level 2!`);
   }
 }
