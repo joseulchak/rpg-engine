@@ -5,9 +5,13 @@ import { CommandBus, CqrsModule } from '@nestjs/cqrs';
 import { CreateCharacterHandler } from './handlers/create-character.handler';
 import { GameEvent } from 'src/entities/GameEvent.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { WorkerCheckpoint } from 'src/entities/WorkerCheckpoint.entity';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([GameEvent])],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([GameEvent, WorkerCheckpoint]),
+  ],
   controllers: [GameController],
   providers: [StatsCalculatorService, CreateCharacterHandler],
 })

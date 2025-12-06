@@ -15,6 +15,10 @@ export class GameEvent {
   @Column()
   aggregateId: string;
 
+  @Index({ unique: true })
+  @Column({ generated: 'increment' })
+  sequenceNumber: number;
+
   @Column()
   type: string; //DamageTaken, ItemEquipped, ItemUnequipped, etc...
 
