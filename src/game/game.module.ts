@@ -8,7 +8,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { WorkerCheckpoint } from 'src/entities/WorkerCheckpoint.entity';
 import { BullModule } from '@nestjs/bullmq';
 import { GAME_QUEUE } from 'src/config/constants';
-import { LevelUpWorker } from './workers/level-up.worker';
 import { GainXpWorker } from './workers/gain-xp.worker';
 
 @Module({
@@ -20,12 +19,7 @@ import { GainXpWorker } from './workers/gain-xp.worker';
     }),
   ],
   controllers: [GameController],
-  providers: [
-    StatsCalculatorService,
-    CreateCharacterHandler,
-    LevelUpWorker,
-    GainXpWorker,
-  ],
+  providers: [StatsCalculatorService, CreateCharacterHandler, GainXpWorker],
   exports: [BullModule],
 })
 export class GameModule {}
