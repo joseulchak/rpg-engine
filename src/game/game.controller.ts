@@ -13,10 +13,10 @@ import {
 } from './dtos/character-stats.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectQueue } from '@nestjs/bullmq';
-import { GAIN_XP_COMMAND, GAME_QUEUE } from 'src/config/constants';
 import { Queue } from 'bullmq';
 import { CreateCharacterCommand } from './commands/create-character.command';
 import { GainXpCommand } from './commands/gain-xp.command';
+import { GAME_QUEUE, JOB_NAME } from 'src/config/constants';
 
 @Controller('game')
 export class GameController {
@@ -44,7 +44,7 @@ export class GameController {
     @Body('amount') amount: number,
   ) {
     const command = new GainXpCommand(characterId, amount);
-    const job = await this.gameQueue.add(GAIN_XP_COMMAND, command);
+    const job = await this.gameQueue.add(JOB_NAME.gainXp, command);
 
     return {
       status: 'queued',

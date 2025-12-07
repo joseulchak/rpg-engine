@@ -5,7 +5,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Character } from '../../entities/Character.entity';
 import { GameEvent } from '../../entities/GameEvent.entity';
-import { GAME_QUEUE } from '../../config/constants';
+import { GAME_QUEUE, JOB_NAME } from '../../config/constants';
 
 @Processor(GAME_QUEUE)
 export class ProjectorWorker extends WorkerHost {
@@ -19,7 +19,7 @@ export class ProjectorWorker extends WorkerHost {
     // We only care about the 'sync-view' job type here.
     // (In a real Kafka system, we would subscribe to topics.
     // In BullMQ, we filter by job name or handle specific jobs).
-    if (job.name !== 'sync-character-view') {
+    if (job.name !== JOB_NAME.syncCharacterView) {
       return;
     }
 

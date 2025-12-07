@@ -1,6 +1,6 @@
 import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
-import { GAME_QUEUE, LEVEL_UP_COMMAND } from 'src/config/constants';
+import { GAME_QUEUE, JOB_NAME } from 'src/config/constants';
 import { GainXpCommand } from '../commands/gain-xp.command';
 import { Job, Queue } from 'bullmq';
 import { CharacterAggregate } from '../aggregates/character.aggregate';
@@ -20,7 +20,7 @@ export class GainXpWorker extends WorkerHost {
   }
 
   async process(job: Job<GainXpCommand>): Promise<void> {
-    if (job.name !== 'gain-xp') {
+    if (job.name !== JOB_NAME.gainXp) {
       return;
     }
     const { characterId, amount } = job.data;
@@ -55,7 +55,7 @@ export class GainXpWorker extends WorkerHost {
 
       // TRIGGER THE PROJECTOR
       // We add a job to the SAME queue (or a different one) to update the view asynchronously
-      await this.gameQueue.add('sync-character-view', { characterId });
+      await this.gameQueue.add(JOB_NAME.syncCharacterView, { characterId });
     } catch (e) {
       await queryRunner.rollbackTransaction();
       this.logger.error(e);
