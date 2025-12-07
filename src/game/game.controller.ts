@@ -7,7 +7,10 @@ import {
   Post,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { BaseAttributesDto } from './dtos/character-stats.dto';
+import {
+  BaseAttributesDto,
+  CharacterBaseDto,
+} from './dtos/character-stats.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectQueue } from '@nestjs/bullmq';
 import { GAIN_XP_COMMAND, GAME_QUEUE } from 'src/config/constants';
@@ -24,12 +27,12 @@ export class GameController {
 
   @Post('character')
   async createCharacter(
-    @Body('name') name: string,
+    @Body('baseInfo') baseInfo: CharacterBaseDto,
     @Body('attributes') attributes: BaseAttributesDto,
   ) {
     const characterId = uuidv4();
     await this.commandBus.execute(
-      new CreateCharacterCommand(characterId, name, attributes),
+      new CreateCharacterCommand(characterId, baseInfo, attributes),
     );
     return { characterId };
   }

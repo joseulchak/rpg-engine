@@ -12,7 +12,10 @@ import { DataSource } from 'typeorm';
 export class GainXpWorker extends WorkerHost {
   private readonly logger = new Logger(GainXpWorker.name);
 
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectQueue(GAME_QUEUE) private readonly gameQueue: Queue,
+  ) {
     super();
   }
 
@@ -46,6 +49,10 @@ export class GainXpWorker extends WorkerHost {
 
       // 6. Commit
       await queryRunner.commitTransaction();
+
+      // TRIGGER THE PROJECTOR
+      // We add a job to the SAME queue (or a different one) to update the view asynchronously
+      await this.gameQueue.add('sync-character-view', { characterId });
     } catch (e) {
       await queryRunner.rollbackTransaction();
       this.logger.error(e);

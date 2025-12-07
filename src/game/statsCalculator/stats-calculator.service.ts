@@ -11,11 +11,12 @@ export class StatsCalculatorService {
   private readonly HP_PER_CON: number = 2;
   private readonly MP_PER_ENE: number = 10;
   private readonly MP_PER_ARC: number = 5;
+  private readonly STAMINA_PER_CON: number = 2;
   calculate(stats: BaseAttributesDto): DerivedStatsDto {
     const derivedStats: DerivedStatsDto = {
       maxHp: this.calculateMaxHp(stats),
       maxMp: this.calculateMaxMp(stats),
-      carryCapacity: this.calculateCarryCapacity(stats),
+      maxStamina: this.calculateMaxStamina(stats),
     };
 
     return derivedStats;
@@ -30,7 +31,7 @@ export class StatsCalculatorService {
     return stats.energy * this.MP_PER_ENE + stats.arcane * this.MP_PER_ARC;
   }
 
-  private calculateCarryCapacity(stats: BaseAttributesDto): number {
-    return (stats.strength * stats.characterWeight) / GRAVITY;
+  private calculateMaxStamina(stats: BaseAttributesDto): number {
+    return stats.constitution * this.STAMINA_PER_CON;
   }
 }

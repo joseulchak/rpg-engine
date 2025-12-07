@@ -5,6 +5,7 @@ import { StatsCalculatorService } from '../statsCalculator/stats-calculator.serv
 import { DerivedStatsDto } from '../dtos/character-stats.dto';
 import { InternalServerErrorException } from '@nestjs/common';
 import { GameEvent } from 'src/entities/GameEvent.entity';
+import { Character } from 'src/entities/Character.entity';
 
 @CommandHandler(CreateCharacterCommand)
 export class CreateCharacterHandler implements ICommandHandler<CreateCharacterCommand> {
@@ -14,7 +15,7 @@ export class CreateCharacterHandler implements ICommandHandler<CreateCharacterCo
   ) {}
 
   async execute(command: CreateCharacterCommand): Promise<void> {
-    const { characterId, name, attributes } = command;
+    const { characterId, baseInfo, attributes } = command;
 
     const derivatedStats: DerivedStatsDto =
       this.statsCalculator.calculate(attributes);
@@ -28,11 +29,32 @@ export class CreateCharacterHandler implements ICommandHandler<CreateCharacterCo
       event.aggregateId = characterId;
       event.type = 'CharacterCreated';
       event.payload = {
-        name,
+        baseInfo,
         attributes,
         derivatedStats,
       };
       event.version = 1;
+
+      const character = new Character();
+      character.id = characterId;
+      character.name = baseInfo.name;
+      character.race = baseInfo.race;
+      character.class = baseInfo.class;
+      character.height = baseInfo.height;
+      character.weight = baseInfo.weight;
+      character.age = baseInfo.age;
+      character.strength = attributes.strength;
+      character.dexterity = attributes.dexterity;
+      character.agility = attributes.agility;
+      character.arcane = attributes.arcane;
+      character.vitality = attributes.vitality;
+      character.energy = attributes.energy;
+      character.constitution = attributes.constitution;
+      character.maxHp = derivatedStats.maxHp;
+      character.maxMp = derivatedStats.maxMp;
+      character.maxStamina = derivatedStats.maxStamina;
+
+      await queryRunner.manager.save(character);
       await queryRunner.manager.save(event);
       await queryRunner.commitTransaction();
     } catch (error) {

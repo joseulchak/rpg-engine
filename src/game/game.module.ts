@@ -9,11 +9,12 @@ import { WorkerCheckpoint } from 'src/entities/WorkerCheckpoint.entity';
 import { BullModule } from '@nestjs/bullmq';
 import { GAME_QUEUE } from 'src/config/constants';
 import { GainXpWorker } from './workers/gain-xp.worker';
+import { Character } from 'src/entities/Character.entity';
 
 @Module({
   imports: [
     CqrsModule,
-    TypeOrmModule.forFeature([GameEvent, WorkerCheckpoint]),
+    TypeOrmModule.forFeature([GameEvent, WorkerCheckpoint, Character]),
     BullModule.registerQueue({
       name: GAME_QUEUE,
     }),
