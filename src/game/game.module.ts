@@ -10,6 +10,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { GAME_QUEUE } from 'src/config/constants';
 import { GainXpWorker } from './workers/gain-xp.worker';
 import { Character } from 'src/entities/Character.entity';
+import { ProjectorWorker } from './workers/projector.worker';
 
 @Module({
   imports: [
@@ -20,7 +21,12 @@ import { Character } from 'src/entities/Character.entity';
     }),
   ],
   controllers: [GameController],
-  providers: [StatsCalculatorService, CreateCharacterHandler, GainXpWorker],
+  providers: [
+    StatsCalculatorService,
+    CreateCharacterHandler,
+    GainXpWorker,
+    ProjectorWorker,
+  ],
   exports: [BullModule],
 })
 export class GameModule {}

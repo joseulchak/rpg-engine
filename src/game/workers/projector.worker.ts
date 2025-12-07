@@ -19,10 +19,12 @@ export class ProjectorWorker extends WorkerHost {
     // We only care about the 'sync-view' job type here.
     // (In a real Kafka system, we would subscribe to topics.
     // In BullMQ, we filter by job name or handle specific jobs).
-    if (job.name === 'sync-view') {
-      const { characterId } = job.data;
-      await this.project(characterId);
+    if (job.name !== 'sync-character-view') {
+      return;
     }
+
+    const { characterId } = job.data;
+    await this.project(characterId);
   }
 
   private async project(aggregateId: string) {
@@ -57,7 +59,6 @@ export class ProjectorWorker extends WorkerHost {
 
     // 4. Apply ONLY the Delta (The changes)
     for (const event of events) {
-      console.log('EVENT', event);
       if (event.type === 'CharacterCreated') {
         // ... map static fields ...
       }

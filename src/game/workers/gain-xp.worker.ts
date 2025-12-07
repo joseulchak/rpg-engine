@@ -20,6 +20,9 @@ export class GainXpWorker extends WorkerHost {
   }
 
   async process(job: Job<GainXpCommand>): Promise<void> {
+    if (job.name !== 'gain-xp') {
+      return;
+    }
     const { characterId, amount } = job.data;
 
     // 1. Start Transaction (CRITICAL)
