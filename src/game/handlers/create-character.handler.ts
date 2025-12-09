@@ -15,7 +15,7 @@ export class CreateCharacterHandler implements ICommandHandler<CreateCharacterCo
   ) {}
 
   async execute(command: CreateCharacterCommand): Promise<void> {
-    const { characterId, baseInfo, attributes } = command;
+    const { characterId, baseInfo, attributes, user } = command;
 
     const derivatedStats: DerivedStatsDto =
       this.statsCalculator.calculate(attributes);
@@ -37,6 +37,7 @@ export class CreateCharacterHandler implements ICommandHandler<CreateCharacterCo
 
       const character = new Character();
       character.id = characterId;
+      character.userId = user.id;
       character.name = baseInfo.name;
       character.race = baseInfo.race;
       character.class = baseInfo.class;

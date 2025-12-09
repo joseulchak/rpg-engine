@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import {
@@ -17,6 +18,9 @@ import { Queue } from 'bullmq';
 import { CreateCharacterCommand } from './commands/create-character.command';
 import { GainXpCommand } from './commands/gain-xp.command';
 import { GAME_QUEUE, JOB_NAME } from 'src/config/constants';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/entities/User.entity';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('game')
 export class GameController {
@@ -25,14 +29,16 @@ export class GameController {
     @InjectQueue(GAME_QUEUE) private readonly gameQueue: Queue,
   ) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('character')
   async createCharacter(
     @Body('baseInfo') baseInfo: CharacterBaseDto,
     @Body('attributes') attributes: BaseAttributesDto,
+    @CurrentUser() user: User,
   ) {
     const characterId = uuidv4();
     await this.commandBus.execute(
-      new CreateCharacterCommand(characterId, baseInfo, attributes),
+      new CreateCharacterCommand(characterId, baseInfo, attributes, user),
     );
     return { characterId };
   }

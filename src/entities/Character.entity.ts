@@ -1,9 +1,12 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity()
+@Entity('characters')
 export class Character {
   @PrimaryColumn('uuid')
   id: string;
+
+  @Column()
+  userId: string;
 
   @Column()
   name: string;

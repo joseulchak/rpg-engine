@@ -1,3 +1,4 @@
+import { User } from 'src/entities/User.entity';
 import {
   BaseAttributesDto,
   CharacterBaseDto,
@@ -8,5 +9,6 @@ export class CreateCharacterCommand {
     public readonly characterId: string,
     public readonly baseInfo: CharacterBaseDto,
     public readonly attributes: BaseAttributesDto,
+    public readonly user: User,
   ) {}
 }
