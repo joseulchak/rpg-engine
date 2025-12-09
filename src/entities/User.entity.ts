@@ -1,11 +1,14 @@
 import {
   Column,
   CreateDateColumn,
+  Entity,
   PrimaryColumn,
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
+@Entity()
+@Unique(['email'])
 export class User {
   @PrimaryColumn('uuid')
   id: string;
@@ -20,7 +23,7 @@ export class User {
   password: string;
 
   @Column()
-  roles: string;
+  role: string;
 
   @CreateDateColumn()
   createdAt: Date;
