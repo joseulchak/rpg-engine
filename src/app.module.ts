@@ -8,6 +8,7 @@ import { GameModule } from './game/game.module';
 import dbConfig from './config/db.config';
 import redisConfig from './config/redis.config';
 import { BullModule } from '@nestjs/bullmq';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { BullModule } from '@nestjs/bullmq';
     }),
     EventsModule,
     GameModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
