@@ -5,6 +5,6 @@ export default registerAs(
   'jwt',
   (): JwtModuleOptions => ({
     secret: process.env.JWT_SECRET,
-    signOptions: { expiresIn: '1s' },
+    signOptions: { expiresIn: '1h' },
   }),
 );

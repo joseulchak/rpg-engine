@@ -23,10 +23,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(payload: AuthJwtPayload) {
-    console.log('PAYLOAD', payload);
     const userId = payload.sub;
     const user = await this.userService.findOneById(userId);
-    console.log('USER', user);
     if (!user) throw new UnauthorizedException('Invalid Credentials');
 
     return user;

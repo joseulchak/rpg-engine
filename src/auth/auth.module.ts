@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/User.entity';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 import jwtConfig from './config/jwt.config';
 import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/user.module';
@@ -15,10 +15,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     TypeOrmModule.forFeature([User]),
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        ...configService.get('jwt'),
+      imports: [ConfigModule.forFeature(jwtConfig)],
+      inject: [jwtConfig.KEY],
+      useFactory: (configuration: ConfigType<typeof jwtConfig>) => ({
+        secret: configuration.secret,
+        signOptions: configuration.signOptions,
       }),
     }),
   ],
