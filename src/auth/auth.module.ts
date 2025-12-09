@@ -3,15 +3,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from 'src/entities/User.entity';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import jwtConfig from './config/jwt.config';
 import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Users]),
-    JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        ...configService.get('jwt'),
+      }),
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService],
