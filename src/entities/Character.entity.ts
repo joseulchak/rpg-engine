@@ -1,10 +1,11 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
 @Entity('characters')
 export class Character {
   @PrimaryColumn('uuid')
   id: string;
 
+  @Index()
   @Column()
   userId: string;
 

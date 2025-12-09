@@ -23,13 +23,13 @@ import { User } from 'src/entities/User.entity';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('game')
+@UseGuards(AuthGuard('jwt'))
 export class GameController {
   constructor(
     private readonly commandBus: CommandBus,
     @InjectQueue(GAME_QUEUE) private readonly gameQueue: Queue,
   ) {}
 
-  @UseGuards(AuthGuard('jwt'))
   @Post('character')
   async createCharacter(
     @Body('baseInfo') baseInfo: CharacterBaseDto,
