@@ -10,6 +10,12 @@ export class CharacterAggregate {
     history.forEach((event) => this.apply(event));
   }
 
+  private xpNeededForNextLevel(currentLevel: number): number {
+    const baseExponential = 2;
+    const baseMultiplier = 5;
+    return (currentLevel + 1) ** baseExponential * baseMultiplier;
+  }
+
   private apply(event: GameEvent): void {
     if (event.type === 'CharacterCreated') {
       this.currentLevel = 1;
@@ -40,7 +46,7 @@ export class CharacterAggregate {
 
     // 2. Check Logic (The "100" Rule)
     // In reality, this would be a formula: (level * 1000)
-    const xpNeededForNextLevel = this.currentLevel * 100;
+    const xpNeededForNextLevel = this.xpNeededForNextLevel(this.currentLevel);
 
     if (this.currentXp >= xpNeededForNextLevel) {
       const levelUpEvent = new GameEvent();

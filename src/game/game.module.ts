@@ -11,10 +11,13 @@ import { GAME_QUEUE } from 'src/config/constants';
 import { GainXpWorker } from './workers/gain-xp.worker';
 import { Character } from 'src/entities/Character.entity';
 import { ProjectorWorker } from './workers/projector.worker';
+import { DatabaseModule } from 'src/database/database.module';
+import { CharacterQueryService } from './character-query.service';
 
 @Module({
   imports: [
     CqrsModule,
+    DatabaseModule,
     TypeOrmModule.forFeature([GameEvent, WorkerCheckpoint, Character]),
     BullModule.registerQueue({
       name: GAME_QUEUE,
@@ -26,6 +29,7 @@ import { ProjectorWorker } from './workers/projector.worker';
     CreateCharacterHandler,
     GainXpWorker,
     ProjectorWorker,
+    CharacterQueryService,
   ],
   exports: [BullModule],
 })

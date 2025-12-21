@@ -6,19 +6,24 @@ import { DataSource } from 'typeorm';
 import { Character } from '../../entities/Character.entity';
 import { GameEvent } from '../../entities/GameEvent.entity';
 import { GAME_QUEUE, JOB_NAME } from '../../config/constants';
+import { StatsCalculatorService } from '../statsCalculator/stats-calculator.service'; // Added
+import {
+  CharacterBaseInfoDto,
+  BaseAttributesDto,
+} from '../dtos/character-stats.dto'; // Added
 
 @Processor(GAME_QUEUE)
 export class ProjectorWorker extends WorkerHost {
   private readonly logger = new Logger(ProjectorWorker.name);
 
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly statsCalculator: StatsCalculatorService, // INJECTED CRITICAL DEPENDENCY
+  ) {
     super();
   }
 
   async process(job: Job<any>): Promise<void> {
-    // We only care about the 'sync-view' job type here.
-    // (In a real Kafka system, we would subscribe to topics.
-    // In BullMQ, we filter by job name or handle specific jobs).
     if (job.name !== JOB_NAME.syncCharacterView) {
       return;
     }
@@ -36,11 +41,9 @@ export class ProjectorWorker extends WorkerHost {
       },
     );
 
-    // If no view exists, we start from 0.
     const lastSeq = charView ? charView.lastSequenceNumber : 0;
 
     // 2. Load ONLY New Events (The Optimization)
-    // WHERE sequenceNumber > lastSeq
     const events = await this.dataSource.manager
       .createQueryBuilder(GameEvent, 'event')
       .where('event.aggregateId = :id', { id: aggregateId })
@@ -48,25 +51,55 @@ export class ProjectorWorker extends WorkerHost {
       .orderBy('event.sequenceNumber', 'ASC')
       .getMany();
 
-    if (events.length === 0) return; // Nothing new to do
+    if (events.length === 0) return;
 
-    // 3. Initialize View if null (First time)
+    // The handler already creates the entity, so we assume charView exists.
+    // If not, something catastrophic happened or the handler logic changed.
     if (!charView) {
-      charView = new Character();
-      charView.id = aggregateId;
-      // defaults...
+      this.logger.error(
+        `Character view not found for ID: ${aggregateId} during projection.`,
+      );
+      return;
     }
 
     // 4. Apply ONLY the Delta (The changes)
     for (const event of events) {
-      if (event.type === 'CharacterCreated') {
-        // ... map static fields ...
-      }
       if (event.type === 'XPGained') {
         charView.currXp = (charView.currXp || 0) + event.payload.amount;
       }
+
+      // CRITICAL: Recalculate derived stats only on LevelUp
       if (event.type === 'LevelUp') {
         charView.level = event.payload.newLevel;
+
+        const baseInfo: CharacterBaseInfoDto = {
+          name: charView.name,
+          race: charView.race,
+          class: charView.class,
+          height: charView.height,
+          weight: charView.weight,
+          age: charView.age,
+        };
+
+        const attributes: BaseAttributesDto = {
+          strength: charView.strength,
+          dexterity: charView.dexterity,
+          agility: charView.agility,
+          arcane: charView.arcane,
+          vitality: charView.vitality,
+          energy: charView.energy,
+          constitution: charView.constitution,
+        };
+
+        const newDerivedStats = this.statsCalculator.calculate(
+          baseInfo,
+          attributes,
+        );
+
+        charView.maxHp = newDerivedStats.maxHp;
+        charView.maxMp = newDerivedStats.maxMp;
+        charView.maxStamina = newDerivedStats.maxStamina;
+        charView.carryCapacity = newDerivedStats.carryCapacity;
       }
 
       // UPDATE THE BOOKMARK

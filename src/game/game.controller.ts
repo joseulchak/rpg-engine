@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -10,7 +11,7 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import {
   BaseAttributesDto,
-  CharacterBaseDto,
+  CharacterBaseInfoDto,
 } from './dtos/character-stats.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -21,24 +22,26 @@ import { GAME_QUEUE, JOB_NAME } from 'src/config/constants';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/entities/User.entity';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { CharacterQueryService } from './character-query.service';
 
 @Controller('game')
 @UseGuards(AuthGuard('jwt'))
 export class GameController {
   constructor(
+    private readonly characterQueryService: CharacterQueryService,
     private readonly commandBus: CommandBus,
     @InjectQueue(GAME_QUEUE) private readonly gameQueue: Queue,
   ) {}
 
   @Post('character')
   async createCharacter(
-    @Body('baseInfo') baseInfo: CharacterBaseDto,
-    @Body('attributes') attributes: BaseAttributesDto,
+    @Body('baseInfo') baseInfo: CharacterBaseInfoDto, // Requires Base Info DTO
+    @Body('attributes') attributes: BaseAttributesDto, // Requires Attributes DTO
     @CurrentUser() user: User,
   ) {
     const characterId = uuidv4();
     await this.commandBus.execute(
-      new CreateCharacterCommand(characterId, baseInfo, attributes, user),
+      new CreateCharacterCommand(characterId, baseInfo, attributes, user), // Updated to pass attributes
     );
     return { characterId };
   }
@@ -48,6 +51,7 @@ export class GameController {
   async gainXp(
     @Param('characterId') characterId: string,
     @Body('amount') amount: number,
+    @CurrentUser() user: User,
   ) {
     const command = new GainXpCommand(characterId, amount);
     const job = await this.gameQueue.add(JOB_NAME.gainXp, command);
@@ -57,5 +61,16 @@ export class GameController {
       jobId: job.id,
       characterId,
     };
+  }
+
+  @Get('character/:characterId')
+  async getCharacter(
+    @Param('characterId') characterId: string,
+    @CurrentUser() user: User,
+  ) {
+    return await this.characterQueryService.getCharacterById(
+      characterId,
+      user.id,
+    );
   }
 }

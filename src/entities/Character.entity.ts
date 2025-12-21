@@ -66,6 +66,9 @@ export class Character {
   @Column({ default: 0 })
   maxStamina: number; // "ST" from your sheet
 
+  @Column({ type: 'float', default: 0 })
+  carryCapacity: number; // ADDED THIS
+
   @Column({ default: 0 })
-  lastSequenceNumber: number; // The bookmark
+  lastSequenceNumber?: number; // The bookmark
 }

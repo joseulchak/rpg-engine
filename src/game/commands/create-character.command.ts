@@ -1,14 +1,14 @@
 import { User } from 'src/entities/User.entity';
 import {
+  CharacterBaseInfoDto,
   BaseAttributesDto,
-  CharacterBaseDto,
-} from '../dtos/character-stats.dto';
+} from '../dtos/character-stats.dto'; // Updated imports
 
 export class CreateCharacterCommand {
   constructor(
     public readonly characterId: string,
-    public readonly baseInfo: CharacterBaseDto,
-    public readonly attributes: BaseAttributesDto,
+    public readonly baseInfo: CharacterBaseInfoDto, // Use Base Info DTO
+    public readonly attributes: BaseAttributesDto, // Use Attributes DTO
     public readonly user: User,
   ) {}
 }

@@ -8,10 +8,12 @@ import jwtConfig from './config/jwt.config';
 import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/user.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
   imports: [
     UserModule,
+    DatabaseModule,
     TypeOrmModule.forFeature([User]),
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync({
